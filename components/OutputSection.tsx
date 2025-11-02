@@ -26,14 +26,14 @@ const OutputSection: React.FC<OutputSectionProps> = ({
       .map(line => line.substring(2));
 
     return (
-      <div className="bg-slate-800 p-6 rounded-lg shadow-xl relative h-full">
+      <div className="bg-white p-6 rounded-lg shadow-xl relative h-full border border-amber-100">
         <CopyButton textToCopy={`${questions}\n${answers}`} />
-        <h3 className="text-lg font-semibold text-sky-400 mb-4">{title}</h3>
+        <h3 className="text-xl font-semibold text-amber-700 mb-4">{title}</h3>
         <div>
           {questionList.map((q, idx) => (
             <div key={idx} className="mb-4">
-              <div className="font-semibold text-purple-300">{`Q${idx + 1}. ${q}`}</div>
-              <div className="ml-5 text-green-300">{`A${idx + 1}. ${answerList[idx] || ''}`}</div>
+              <div className="font-semibold text-amber-700">{`Q${idx + 1}. ${q}`}</div>
+              <div className="ml-5 text-amber-900">{`A${idx + 1}. ${answerList[idx] || ''}`}</div>
             </div>
           ))}
         </div>
@@ -50,10 +50,10 @@ const OutputSection: React.FC<OutputSectionProps> = ({
     );
 
     return (
-      <div className="bg-slate-800 p-6 rounded-lg shadow-xl relative h-full">
+      <div className="bg-white p-6 rounded-lg shadow-xl relative h-full border border-amber-100">
         <CopyButton textToCopy={content} />
-        <h3 className="text-lg font-semibold text-sky-400 mb-4">{title}</h3>
-        <ul className="text-slate-300 text-sm whitespace-pre-wrap prose prose-invert prose-sm max-w-none">
+        <h3 className="text-xl font-semibold text-amber-700 mb-4">{title}</h3>
+        <ul className="text-amber-900 text-sm whitespace-pre-wrap prose prose-invert prose-sm max-w-none">
           {formattedContent}
         </ul>
       </div>

@@ -17,10 +17,10 @@ const InputSection: React.FC<InputSectionProps> = ({
   onSubmit,
   isLoading
 }) => (
-  <div className="bg-slate-800 p-6 rounded-lg shadow-xl">
-    <h2 className="text-lg font-semibold text-sky-400 mb-4">Describe Your Target Job</h2>
+  <div className="bg-white p-6 rounded-lg shadow-xl border border-amber-100">
+    <h2 className="text-lg font-semibold text-amber-700 mb-4">Describe Your Target Job</h2>
     <textarea
-      className="w-full mb-4 p-2 rounded text-slate-800"
+      className="w-full mb-4 p-2 rounded text-amber-900 border border-amber-200 bg-amber-50"
       rows={5}
       placeholder="Paste job description here..."
       value={jobDescription}
@@ -28,7 +28,7 @@ const InputSection: React.FC<InputSectionProps> = ({
       disabled={isLoading}
     />
     <input
-      className="w-full mb-4 p-2 rounded text-slate-800"
+      className="w-full mb-4 p-2 rounded text-amber-900 border border-amber-200 bg-amber-50"
       type="text"
       placeholder="Desired Role (e.g., MERN Stack Developer)"
       value={role}
@@ -36,7 +36,7 @@ const InputSection: React.FC<InputSectionProps> = ({
       disabled={isLoading}
     />
     <button
-      className="bg-purple-600 text-white font-bold py-2 px-6 rounded hover:bg-purple-700 transition"
+      className="bg-amber-500 text-white font-bold py-2 px-6 rounded hover:bg-amber-600 transition"
       onClick={onSubmit}
       disabled={isLoading}
     >
