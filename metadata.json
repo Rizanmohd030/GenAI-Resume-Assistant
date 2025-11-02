@@ -1,0 +1,5 @@
+{
+  "name": "GenAI Resume Assistant",
+  "description": "An AI-powered assistant that uses a job description and desired role to generate tailored resume highlights, skill summaries, and cover letters using Gemini.",
+  "requestFramePermissions": []
+}
