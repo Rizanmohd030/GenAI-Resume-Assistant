@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface ApiKeyPromptProps {
@@ -7,10 +6,16 @@ interface ApiKeyPromptProps {
 
 const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onKeySelected }) => {
   const handleSelectKey = async () => {
-    if (window.aistudio) {
-      await window.aistudio.openSelectKey();
-      // Assume success and update the UI immediately to avoid race conditions.
-      onKeySelected();
+    try {
+      if (window.aistudio) {
+        await window.aistudio.openSelectKey();
+        // Assume success and update the UI immediately to avoid race conditions.
+        onKeySelected();
+      } else {
+        alert("AI Studio integration not found. Please ensure the plugin/extension is loaded, and try again.");
+      }
+    } catch (err) {
+      alert("Failed to select API key. Please try again.");
     }
   };
 
@@ -27,6 +32,12 @@ const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onKeySelected }) => {
         >
           Select API Key
         </button>
+        <div className="mt-4 text-xs text-slate-500">
+          <span>
+            <strong>Note:</strong> Styling requires Tailwind CSS to be installed and imported via npm.
+            If you're offline, ensure Tailwind is bundled locally in your project.
+          </span>
+        </div>
       </div>
     </div>
   );

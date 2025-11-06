@@ -1,6 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { GeneratedContent } from "../types";
 
+
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 if (!API_KEY) {
@@ -26,7 +27,7 @@ const schema = {
     },
     interviewQuestions: {
       type: Type.STRING,
-      description: "A bulleted list (5-7) of typical interview questions for this job.",
+      description: "A bulleted list (7-8) of typical interview questions for this job.",
     },
     expectedAnswers: {
       type: Type.STRING,
@@ -52,6 +53,11 @@ export const generateResumeContent = async (
     2. skillsSummary: Concise summary for resume - key tech and soft skills
     3. coverLetter: Full draft, addressed to a hiring manager
     4. interviewQuestions: 5-7 interview questions (tech + behavioral, bullet '*')
+    (i want yoou think as HR in Given Company Name and give me all possible questions and answers make sure its in the form of 
+    Q: 
+    A: 
+    
+    do the proper research and make sure all the questions are asked)
     5. expectedAnswers: Matching list of ideal brief answers to each question (bullet '*')
     
     Job Description:
@@ -64,9 +70,11 @@ export const generateResumeContent = async (
     ${role}
     ---
     
+
     IMPORTANT: Output ONLY valid JSON matching the schema above.
     Do NOT include explanation, commentary, markdown, or triple backticks—output ONLY a single JSON object with NO extra text.
-  `;
+  
+    `;
 
   try {
     const response = await ai.models.generateContent({

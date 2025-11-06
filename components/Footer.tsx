@@ -2,14 +2,14 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="text-center p-4 mt-8 border-t border-amber-200 bg-amber-50">
-      <p className="text-sm text-amber-700">
+    <footer className="glass-card mx-auto max-w-2xl mb-4 p-5 rounded-2xl shadow-md border border-white/20 bg-white/10 backdrop-blur-lg backdrop-saturate-150 text-center transition duration-300">
+      <p className="text-sm text-sky-300">
         Built by{" "}
         <a
           href="https://www.linkedin.com/in/rizan-mohammed-ismail-b059b7269"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-amber-800 hover:underline"
+          className="text-sky-400 font-bold hover:underline"
         >
           Rizan Mohammed Ismail
         </a>

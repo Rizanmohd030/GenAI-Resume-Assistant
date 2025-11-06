@@ -6,13 +6,20 @@ interface OutputSectionProps {
   questions?: string;
   answers?: string;
   content?: string;
+  onGenerateMore?: () => void;
+  loadingMore?: boolean;
 }
+
+const buttonClasses =
+  'bg-sky-500/80 text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-sky-600/80 transition-colors duration-300';
 
 const OutputSection: React.FC<OutputSectionProps> = ({
   title,
   questions,
   answers,
   content,
+  onGenerateMore,
+  loadingMore,
 }) => {
   // Q&A pair block
   if (questions && answers) {
@@ -26,8 +33,10 @@ const OutputSection: React.FC<OutputSectionProps> = ({
       .map(line => line.substring(2));
 
     return (
-      <div className="bg-white p-6 rounded-lg shadow-xl relative h-full border border-amber-100">
-        <CopyButton textToCopy={`${questions}\n${answers}`} />
+      <div className="glass-card border border-white/20 bg-white/10 backdrop-blur-lg backdrop-saturate-150 rounded-2xl shadow-xl p-6 relative h-full transition duration-300">
+        <div className="absolute top-4 right-4">
+          <CopyButton textToCopy={`${questions}\n${answers}`} buttonClass={buttonClasses} />
+        </div>
         <h3 className="text-xl font-semibold text-amber-700 mb-4">{title}</h3>
         <div>
           {questionList.map((q, idx) => (
@@ -37,6 +46,15 @@ const OutputSection: React.FC<OutputSectionProps> = ({
             </div>
           ))}
         </div>
+        {onGenerateMore &&
+          <button
+            onClick={onGenerateMore}
+            disabled={!!loadingMore}
+            className={buttonClasses + ' mt-6'}
+          >
+            {loadingMore ? 'Generating...' : 'Generate More'}
+          </button>
+        }
       </div>
     );
   }
@@ -50,8 +68,10 @@ const OutputSection: React.FC<OutputSectionProps> = ({
     );
 
     return (
-      <div className="bg-white p-6 rounded-lg shadow-xl relative h-full border border-amber-100">
-        <CopyButton textToCopy={content} />
+      <div className="glass-card border border-white/20 bg-white/10 backdrop-blur-lg backdrop-saturate-150 rounded-2xl shadow-xl p-6 relative h-full transition duration-300">
+        <div className="absolute top-4 right-4">
+          <CopyButton textToCopy={content} buttonClass={buttonClasses} />
+        </div>
         <h3 className="text-xl font-semibold text-amber-700 mb-4">{title}</h3>
         <ul className="text-amber-900 text-sm whitespace-pre-wrap prose prose-invert prose-sm max-w-none">
           {formattedContent}

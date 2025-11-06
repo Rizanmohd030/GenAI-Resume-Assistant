@@ -2,11 +2,12 @@ import React from 'react';
 
 interface InputSectionProps {
   jobDescription: string;
-  setJobDescription: (value: string) => void;
+  setJobDescription: (v: string) => void;
   role: string;
-  setRole: (value: string) => void;
+  setRole: (v: string) => void;
   onSubmit: () => void;
   isLoading: boolean;
+  glass?: boolean; // Optional for glass theme
 }
 
 const InputSection: React.FC<InputSectionProps> = ({
@@ -15,33 +16,38 @@ const InputSection: React.FC<InputSectionProps> = ({
   role,
   setRole,
   onSubmit,
-  isLoading
+  isLoading,
+  glass,
 }) => (
-  <div className="bg-white p-6 rounded-lg shadow-xl border border-amber-100">
-    <h2 className="text-lg font-semibold text-amber-700 mb-4">Describe Your Target Job</h2>
-    <textarea
-      className="w-full mb-4 p-2 rounded text-amber-900 border border-amber-200 bg-amber-50"
-      rows={5}
-      placeholder="Paste job description here..."
-      value={jobDescription}
-      onChange={(e) => setJobDescription(e.target.value)}
-      disabled={isLoading}
-    />
-    <input
-      className="w-full mb-4 p-2 rounded text-amber-900 border border-amber-200 bg-amber-50"
-      type="text"
-      placeholder="Desired Role (e.g., MERN Stack Developer)"
-      value={role}
-      onChange={(e) => setRole(e.target.value)}
-      disabled={isLoading}
-    />
-    <button
-      className="bg-amber-500 text-white font-bold py-2 px-6 rounded hover:bg-amber-600 transition"
-      onClick={onSubmit}
-      disabled={isLoading}
-    >
-      {isLoading ? "Generating..." : "Generate Resume & Interview Pack"}
-    </button>
+  <div className={glass
+    ? "glass-card border border-white/20 bg-white/10 backdrop-blur-lg backdrop-saturate-150 rounded-2xl shadow-xl p-8 transition duration-300"
+    : "bg-white rounded-lg shadow-md p-8"}>
+    <form onSubmit={e => { e.preventDefault(); onSubmit(); }}>
+      <label className="block mb-4 text-lg font-semibold">Job Description</label>
+      <textarea
+        className="block w-full p-2 mb-6 bg-white/20 border backdrop-blur text-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
+        rows={4}
+        value={jobDescription}
+        onChange={e => setJobDescription(e.target.value)}
+        disabled={isLoading}
+        required
+      />
+      <label className="block mb-4 text-lg font-semibold">Desired Role</label>
+      <input
+        className="block w-full p-2 mb-6 bg-white/20 border backdrop-blur text-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+        value={role}
+        onChange={e => setRole(e.target.value)}
+        disabled={isLoading}
+        required
+      />
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="bg-sky-500/80 text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-sky-600/80 transition-colors duration-300 w-full"
+      >
+        {isLoading ? 'Generating...' : 'Generate'}
+      </button>
+    </form>
   </div>
 );
 
