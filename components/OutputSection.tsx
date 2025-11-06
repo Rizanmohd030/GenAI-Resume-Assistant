@@ -21,8 +21,12 @@ const OutputSection: React.FC<OutputSectionProps> = ({
   onGenerateMore,
   loadingMore,
 }) => {
-  // Q&A pair block
+  // Q&A Section
   if (questions && answers) {
+    // Defensive: ensure string input
+    if (Array.isArray(questions)) questions = questions.map(x => `* ${x}`).join('\n');
+    if (Array.isArray(answers)) answers = answers.map(x => `* ${x}`).join('\n');
+
     const questionList = questions
       .split('\n')
       .filter(line => line.trim().startsWith('* '))
@@ -59,8 +63,10 @@ const OutputSection: React.FC<OutputSectionProps> = ({
     );
   }
 
-  // Bullets/paragraphs for other sections
+  // Bullets/paragraphs
   if (content) {
+    if (Array.isArray(content)) content = content.map(x => `* ${x}`).join('\n');
+
     const formattedContent = content.split('\n').map((line, index) =>
       line.trim().startsWith('* ')
         ? <li key={index} className="ml-5 list-disc">{line.substring(2)}</li>

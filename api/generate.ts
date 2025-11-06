@@ -46,12 +46,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const rawText = response.text?.trim() ?? "";
     console.log("Gemini raw response:", rawText);
 
-    let parsedJSON = {};
+    let parsedJSON: any = {};
     try {
       parsedJSON = JSON.parse(rawText);
+
+      // Convert arrays to bulleted strings for frontend
+      if (Array.isArray(parsedJSON.resumeHighlights))
+        parsedJSON.resumeHighlights = parsedJSON.resumeHighlights.map((x: string) => `* ${x}`).join('\n');
+      if (Array.isArray(parsedJSON.interviewQuestions))
+        parsedJSON.interviewQuestions = parsedJSON.interviewQuestions.map((x: string) => `* ${x}`).join('\n');
+      if (Array.isArray(parsedJSON.expectedAnswers))
+        parsedJSON.expectedAnswers = parsedJSON.expectedAnswers.map((x: string) => `* ${x}`).join('\n');
     } catch (parseError) {
       console.error("Failed to parse JSON from Gemini:", parseError, rawText);
-      return res.status(500).json({ error: "Invalid response from AI" /*, rawResponse: rawText */ });
+      return res.status(500).json({ error: "Invalid response from AI" });
     }
 
     return res.status(200).json(parsedJSON);
