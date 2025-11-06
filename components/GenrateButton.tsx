@@ -10,7 +10,7 @@ const GenerateMoreButton: React.FC<GenerateMoreButtonProps> = ({ onClick, loadin
     disabled={loading}
     className="absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-md transition-colors duration-200"
   >
-    {loading ? 'Generating...' : 'Generate More'}
+    {loading ? 'Generating...' : 'Generate Questions'}
   </button>
 );
 
