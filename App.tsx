@@ -39,8 +39,7 @@ const App: React.FC = () => {
     try {
       const moreContent = await generateResumeContent(
         jobDescription,
-        role,
-        'Generate 6-7 additional interview questions and answers based on the job description and role provided.'
+        role
       );
       setGeneratedContent(prev => prev && {
         ...prev,
@@ -76,7 +75,7 @@ const App: React.FC = () => {
           />
         </div>
 
-        <div className="flex flex-col gap-10 max-w-3xl w-full mx-auto mt-10">
+        <div className="flex flex-col gap-10 max-w-4xl w-full mx-auto mt-10">
           {isLoading && <Loader />}
           
           {error && (
@@ -87,14 +86,19 @@ const App: React.FC = () => {
 
           {!isLoading && !error && generatedContent && (
             <>
-              <OutputSection
-                title="Resume Highlights"
-                content={generatedContent.resumeHighlights}
-              />
-              <OutputSection
-                title="Skills Summary"
-                content={generatedContent.skillsSummary}
-              />
+              {/* Two column grid for Resume Highlights and Skills Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <OutputSection
+                  title="Resume Highlights"
+                  content={generatedContent.resumeHighlights}
+                />
+                <OutputSection
+                  title="Skills Summary"
+                  content={generatedContent.skillsSummary}
+                />
+              </div>
+
+              {/* Full width Cover Letter */}
               <OutputSection
                 title="Cover Letter Draft"
                 content={generatedContent.coverLetter}
