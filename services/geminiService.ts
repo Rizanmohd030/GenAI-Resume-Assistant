@@ -12,12 +12,23 @@ export const generateResumeContent = async (jobDescription: string, role: string
     });
 
     // Always read the body ONCE as text
-    const text = await response.text();
+    let text = "";
+    try {
+      text = await response.text();
+    } catch (e) {
+      console.error("Failed to read text from API", e);
+      throw new Error("Server returned an invalid response.");
+    }
+
     let data;
     try {
       data = JSON.parse(text);
     } catch (e) {
       console.error("Failed to parse JSON from API", e);
+      // Since it's not JSON, it might be an HTML error page (like a 404 from Vite proxy)
+      if (!response.ok) {
+         throw new Error(`API returned ${response.status} ${response.statusText}. Ensure the backend is running.`);
+      }
       throw new Error(`Server returned invalid JSON: ${text}`);
     }
 

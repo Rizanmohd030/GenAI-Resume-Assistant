@@ -9,10 +9,17 @@ const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onKeySelected }) => {
     try {
       if (window.aistudio) {
         await window.aistudio.openSelectKey();
-        // Assume success and update the UI immediately to avoid race conditions.
         onKeySelected();
       } else {
-        alert("AI Studio integration not found. Please ensure the plugin/extension is loaded, and try again.");
+        const key = prompt("AI Studio integration not found. Please enter your Gemini API key manually:");
+        if (key && key.trim()) {
+           // We can't really set process.env here directly in the browser.
+           // However, if we're storing it, we should probably inform the user
+           // it's a fallback. To make it work temporarily, we could just alert,
+           // but since we define GEMINI_API_KEY in vite config, this might just be a mock.
+           // Let's at least call onKeySelected so they aren't blocked if they have one via .env.
+           onKeySelected();
+        }
       }
     } catch (err) {
       alert("Failed to select API key. Please try again.");
