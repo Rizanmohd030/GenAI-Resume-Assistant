@@ -75,11 +75,24 @@ const OutputSection: React.FC<OutputSectionProps> = ({
   if (content) {
     if (Array.isArray(content)) content = content.map(x => `* ${x}`).join('\n');
 
-    const formattedContent = content.split('\n').map((line, index) =>
-      line.trim().startsWith('* ')
-        ? <li key={index} className="ml-5 list-disc text-slate-200">{line.substring(2)}</li>
-        : <p key={index} className="mb-4 text-slate-200">{line}</p>
-    );
+    const formattedContent = content.split('\n').map((line, index) => {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith('* ')) {
+        return (
+          <li key={index} className="ml-5 list-disc text-slate-200">
+            {trimmedLine.substring(2)}
+          </li>
+        );
+      }
+      if (trimmedLine) {
+        return (
+          <p key={index} className="mb-4 text-slate-200">
+            {line}
+          </p>
+        );
+      }
+      return null;
+    });
 
     return (
       <div className="glass-card border border-white/20 bg-white/10 backdrop-blur-lg backdrop-saturate-150 rounded-2xl shadow-xl p-6 relative h-full transition duration-300">
@@ -87,9 +100,9 @@ const OutputSection: React.FC<OutputSectionProps> = ({
           <CopyButton textToCopy={content} buttonClass={buttonClasses} />
         </div>
         <h3 className="text-xl font-semibold text-sky-400 mb-4">{title}</h3>
-        <ul className="text-slate-200 text-sm whitespace-pre-wrap prose prose-invert prose-sm max-w-none">
+        <div className="text-slate-200 text-sm whitespace-pre-wrap prose prose-invert prose-sm max-w-none">
           {formattedContent}
-        </ul>
+        </div>
       </div>
     );
   }
