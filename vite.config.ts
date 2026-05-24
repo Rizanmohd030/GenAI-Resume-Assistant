@@ -12,6 +12,18 @@ export default defineConfig(({ mode }) => {
           '/api': {
             target: 'http://localhost:3001',
             changeOrigin: true,
+            onError: (err, req, res) => {
+              console.error('[Vite Proxy Error]', err.message);
+              res.writeHead(503, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ 
+                error: 'Backend API server is not running. Run `npm run dev` which starts both frontend and backend.' 
+              }));
+            },
+            onProxyReq: (proxyReq, req, res) => {
+              if (req.body) {
+                proxyReq.write(JSON.stringify(req.body));
+              }
+            }
           }
         }
       },
