@@ -20,19 +20,19 @@ app.post('/api/generate', async (req, res) => {
   };
   
   const vercelRes = {
-    status: (statusCode) => {
+    status: (statusCode: number) => {
       res.status(statusCode);
       return vercelRes;
     },
-    json: (data) => {
+    json: (data: unknown) => {
       res.json(data);
     }
   };
 
   try {
     await handler(vercelReq as any, vercelRes as any);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
