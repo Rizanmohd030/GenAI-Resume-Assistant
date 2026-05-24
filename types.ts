@@ -5,3 +5,12 @@ export type GeneratedContent = {
   interviewQuestions: string;
   expectedAnswers: string;
 };
+
+declare global {
+  interface Window {
+    aistudio?: {
+      openSelectKey: () => Promise<void>;
+    };
+  }
+}
+

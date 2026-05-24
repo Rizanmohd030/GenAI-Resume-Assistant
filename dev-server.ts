@@ -30,7 +30,7 @@ app.post('/api/generate', async (req, res) => {
   };
 
   try {
-    await handler(vercelReq, vercelRes);
+    await handler(vercelReq as any, vercelRes as any);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
