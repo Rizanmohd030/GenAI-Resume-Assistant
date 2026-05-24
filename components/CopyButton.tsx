@@ -1,12 +1,12 @@
-
 import React, { useState, useCallback } from 'react';
 
 interface CopyButtonProps {
   textToCopy: string;
   buttonClass?: string;
+  label?: string;
 }
 
-const CopyButton: React.FC<CopyButtonProps> = ({ textToCopy, buttonClass }) => {
+const CopyButton: React.FC<CopyButtonProps> = ({ textToCopy, buttonClass, label = 'Copy' }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
@@ -27,7 +27,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ textToCopy, buttonClass }) => {
       onClick={handleCopy}
       className={buttonClass || defaultClass}
     >
-      {copied ? 'Copied!' : 'Copy'}
+      {copied ? 'Copied!' : label}
     </button>
   );
 };

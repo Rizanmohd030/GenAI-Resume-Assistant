@@ -2,12 +2,21 @@ import React from 'react';
 
 const Loader: React.FC = () => {
   return (
-    <div className="flex flex-col items-center justify-center space-y-4">
-      <svg className="animate-spin h-10 w-10 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <p className="text-amber-400">Generating content, please wait...</p>
+    <div className="grid gap-5 md:grid-cols-3">
+      {[0, 1, 2].map((item) => (
+        <div
+          key={item}
+          className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white/92 p-5 shadow-[0_24px_60px_rgba(15,23,42,0.08)]"
+        >
+          <div className="h-4 w-32 animate-pulse rounded-full bg-slate-200" />
+          <div className="mt-4 h-24 animate-pulse rounded-[1.25rem] bg-slate-100" />
+          <div className="mt-4 space-y-3">
+            <div className="h-3 animate-pulse rounded-full bg-slate-200" />
+            <div className="h-3 w-5/6 animate-pulse rounded-full bg-slate-200" />
+            <div className="h-3 w-4/6 animate-pulse rounded-full bg-slate-200" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

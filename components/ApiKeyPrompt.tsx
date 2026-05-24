@@ -1,10 +1,8 @@
-import React from 'react';
-
 interface ApiKeyPromptProps {
   onKeySelected: () => void;
 }
 
-const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onKeySelected }) => {
+const ApiKeyPrompt = ({ onKeySelected }: ApiKeyPromptProps) => {
   const handleSelectKey = async () => {
     try {
       if (window.aistudio) {

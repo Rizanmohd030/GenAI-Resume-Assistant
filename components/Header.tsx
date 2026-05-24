@@ -2,13 +2,16 @@ import React from 'react';
 
 const Header: React.FC = () => {
   return (
-    <header className="glass-card mx-auto max-w-3xl mt-4 mb-2 p-6 rounded-2xl shadow-lg border border-white/20 bg-white/10 backdrop-blur-lg backdrop-saturate-150 text-center transition duration-300">
-      <h1 className="text-3xl md:text-4xl font-bold text-sky-400 drop-shadow">
-        GenAI Resume Assistant
-      </h1>
-      <p className="text-slate-100 mt-2 text-base md:text-lg">
-        Instantly tailor your application materials to any job description.
-      </p>
+    <header className="mx-auto flex w-full max-w-7xl items-center justify-between rounded-full border border-white/10 bg-white/5 px-5 py-4 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+      <div>
+        <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/80">AI Career Platform</p>
+        <h1 className="font-serif text-2xl text-white md:text-3xl">GenAI Career Assistant</h1>
+      </div>
+      <div className="hidden items-center gap-3 md:flex">
+        <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-sm text-emerald-200">
+          Interview + DSA + Career Prep
+        </span>
+      </div>
     </header>
   );
 };

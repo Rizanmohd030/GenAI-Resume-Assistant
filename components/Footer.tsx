@@ -2,18 +2,9 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="glass-card mx-auto max-w-2xl mb-4 p-5 rounded-2xl shadow-md border border-white/20 bg-white/10 backdrop-blur-lg backdrop-saturate-150 text-center transition duration-300">
-      <p className="text-sm text-sky-300">
-        Built by{" "}
-        <a
-          href="https://www.linkedin.com/in/rizan-mohammed-ismail-b059b7269"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sky-400 font-bold hover:underline"
-        >
-          Rizan Mohammed Ismail
-        </a>
-      </p>
+    <footer className="mx-auto mt-10 flex w-full max-w-7xl items-center justify-between rounded-[2rem] border border-white/10 bg-slate-950/60 px-6 py-5 text-sm text-slate-400 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+      <p>Production-style AI career prep dashboard built for role-specific readiness.</p>
+      <p className="hidden md:block">Structured Gemini outputs • Reusable React components • Tailwind UI</p>
     </footer>
   );
 };

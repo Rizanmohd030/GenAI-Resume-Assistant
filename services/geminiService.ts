@@ -1,14 +1,11 @@
-export interface GenerateRequest {
-  jobDescription: string;
-  role: string;
-}
+import type { GenerateRequest } from '../types';
 
-export const generateResumeContent = async (jobDescription: string, role: string) => {
+export const generateCareerContent = async (payload: GenerateRequest) => {
   try {
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jobDescription, role }),
+      body: JSON.stringify(payload),
     });
 
     // Always read the body ONCE as text
@@ -39,6 +36,6 @@ export const generateResumeContent = async (jobDescription: string, role: string
     return data;
   } catch (err: any) {
     console.error("generateResumeContent error:", err);
-    throw new Error(err.message || "Failed to generate resume content");
+    throw new Error(err.message || "Failed to generate career content");
   }
 };
