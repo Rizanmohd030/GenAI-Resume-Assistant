@@ -267,13 +267,13 @@ const App: React.FC = () => {
                   )}
 
                   {visibleDsa && (
-                    <DsaSection
-                      data={generatedContent.dsa as DsaSectionData}
-                      solvedProblemIds={solvedProblemIds}
-                      bookmarkedProblemIds={bookmarkedProblemIds}
-                      onToggleSolved={handleToggleSolved}
-                      onToggleBookmark={handleToggleBookmark}
-                    />
+                   <DsaSection
+            data={generatedContent.dsa as DsaSectionData}
+            onToggleSolved={handleToggleSolved}
+            onToggleBookmark={handleToggleBookmark}
+            onGenerateMore={() => runGeneration('dsa')}
+            isGeneratingMore={loadingFocus === 'dsa'}
+          />  
                   )}
 
                   {visibleCareer && (

@@ -4,10 +4,10 @@ import type { DsaSectionData, DsaTopic } from '../types';
 
 interface DsaSectionProps {
   data: DsaSectionData;
-  solvedProblemIds: string[];
-  bookmarkedProblemIds: string[];
   onToggleSolved: (id: string) => void;
   onToggleBookmark: (id: string) => void;
+  onGenerateMore: () => void;
+  isGeneratingMore: boolean;
 }
 
 const topics: Array<DsaTopic | 'All'> = [
@@ -24,17 +24,17 @@ const topics: Array<DsaTopic | 'All'> = [
 
 const DsaSection: React.FC<DsaSectionProps> = ({
   data,
-  solvedProblemIds,
-  bookmarkedProblemIds,
-  onToggleSolved,
-  onToggleBookmark,
+  onGenerateMore,
+  isGeneratingMore,
 }) => {
   const [activeTopic, setActiveTopic] = useState<DsaTopic | 'All'>('All');
 
   const filteredProblems = useMemo(() => {
     return activeTopic === 'All'
       ? data.recommendations
-      : data.recommendations.filter((problem) => problem.topic === activeTopic);
+      : data.recommendations.filter(
+          (problem) => problem.topic === activeTopic
+        );
   }, [activeTopic, data.recommendations]);
 
   return (
@@ -42,15 +42,24 @@ const DsaSection: React.FC<DsaSectionProps> = ({
       id="dsa"
       className="rounded-[1.5rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(255,252,247,0.84)] p-4 shadow-[0_10px_40px_rgba(15,23,42,0.06)] backdrop-blur-[10px] sm:p-5 md:rounded-[2rem] md:p-6"
     >
+      {/* Header */}
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-[#7a756b]">Section 2</p>
-          <h2 className="mt-2 font-serif text-[1.9rem] text-[#1f2933] sm:text-3xl">DSA Preparation</h2>
+          <p className="text-xs uppercase tracking-[0.35em] text-[#7a756b]">
+            Section 2
+          </p>
+
+          <h2 className="mt-2 font-serif text-[1.9rem] text-[#1f2933] sm:text-3xl">
+            DSA Preparation
+          </h2>
+
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#625e57] sm:leading-7">
-            Practice the DSA problems most likely to matter for this role, this company context, and the skills
-            emphasized in the job description.
+            Practice the DSA problems most relevant to the role, company
+            expectations, and interview difficulty.
           </p>
         </div>
+
+        {/* Topic Filters */}
         <div className="flex flex-wrap gap-2 sm:gap-3">
           {topics.map((topic) => (
             <button
@@ -68,75 +77,116 @@ const DsaSection: React.FC<DsaSectionProps> = ({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4">
-        {filteredProblems.map((problem) => {
-          const isSolved = solvedProblemIds.includes(problem.id);
-          const isBookmarked = bookmarkedProblemIds.includes(problem.id);
-
+      {/* Problems */}
+      <div className="mt-6 space-y-4">
+        {filteredProblems.map((problem, index) => {
           return (
             <article
               key={problem.id}
-              className="rounded-[1.25rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(250,246,240,0.88)] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.03)] sm:p-5 md:rounded-[1.5rem]"
+              className="rounded-[1.5rem] border border-[rgba(96,90,81,0.10)] bg-[rgba(250,246,240,0.92)] p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition hover:shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
             >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.72)] px-3 py-1 text-xs text-[#58544b]">{problem.topic}</span>
-                    <span className="rounded-full border border-[rgba(41,63,96,0.08)] bg-[rgba(229,236,246,0.7)] px-3 py-1 text-xs text-[#2d4463]">{problem.difficulty}</span>
-                    <span className="rounded-full border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.72)] px-3 py-1 text-xs text-[#58544b]">{problem.platform}</span>
+              <div className="flex items-start justify-between gap-4">
+                
+                {/* Left Side */}
+                <div className="flex min-w-0 flex-1 gap-4">
+                  
+                  {/* Number */}
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[rgba(41,63,96,0.08)] text-sm font-semibold text-[#2d4463]">
+                    {index + 1}
                   </div>
-                  <h3 className="mt-3 break-words text-lg text-[#1f2933] sm:text-xl">{problem.title}</h3>
-                  <p className="mt-3 break-words text-sm leading-6 text-[#625e57] sm:leading-7">{problem.explanation}</p>
-                  <p className="mt-3 break-words text-sm leading-6 text-[#767067] sm:leading-7">{problem.importance}</p>
-                  <div className="mt-4 rounded-[1rem] border border-[rgba(41,63,96,0.1)] bg-[rgba(244,248,252,0.72)] p-4 sm:rounded-[1.2rem]">
-                    <p className="text-xs uppercase tracking-[0.28em] text-[#607086]">Pseudocode Hint</p>
-                    <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-[#44515f] sm:leading-7">
-                      {problem.pseudocodeSteps.map((step, index) => (
-                        <li key={`${problem.id}-step-${index}`}>{step}</li>
-                      ))}
-                    </ol>
+
+                  <div className="min-w-0 flex-1">
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-full border border-[rgba(96,90,81,0.08)] bg-white/70 px-3 py-1 text-[11px] text-[#58544b]">
+                        {problem.topic}
+                      </span>
+
+                      <span className="rounded-full border border-[rgba(41,63,96,0.08)] bg-[rgba(229,236,246,0.7)] px-3 py-1 text-[11px] text-[#2d4463]">
+                        {problem.difficulty}
+                      </span>
+
+                      <span className="rounded-full border border-[rgba(96,90,81,0.08)] bg-white/70 px-3 py-1 text-[11px] text-[#58544b]">
+                        {problem.platform}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="mt-3 text-base font-semibold leading-7 text-[#1f2833] sm:text-lg">
+                      {problem.title}
+                    </h3>
+
+                    {/* Explanation */}
+                    <p className="mt-4 text-sm leading-7 text-[#625e57]">
+                      {problem.explanation}
+                    </p>
+
+                    {/* Importance */}
+                    <p className="mt-3 text-sm leading-7 text-[#767067]">
+                      {problem.importance}
+                    </p>
+
+                    {/* Pseudocode */}
+                    <div className="mt-5 rounded-[1rem] border border-[rgba(41,63,96,0.08)] bg-[rgba(244,248,252,0.72)] p-4">
+                      <p className="text-xs uppercase tracking-[0.28em] text-[#607086]">
+                        Pseudocode Hint
+                      </p>
+
+                      <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-7 text-[#44515f]">
+                        {problem.pseudocodeSteps.map((step, stepIndex) => (
+                          <li key={`${problem.id}-step-${stepIndex}`}>
+                            {step}
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+
+                    {/* Link */}
+                    <a
+                      href={problem.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-5 inline-flex min-h-[2.75rem] items-center rounded-full border border-[rgba(96,90,81,0.10)] bg-white/80 px-4 py-2 text-sm text-[#4d5763] transition hover:bg-white"
+                    >
+                      Open Problem
+                    </a>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 lg:max-w-[12rem] lg:justify-end">
-                  <CopyButton
-                    textToCopy={`${problem.title}\n${problem.link}\n${problem.explanation}\n${problem.importance}\n\nPseudocode:\n${problem.pseudocodeSteps
-                      .map((step, index) => `${index + 1}. ${step}`)
-                      .join('\n')}`}
-                    buttonClass="rounded-full border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.75)] px-3 py-2 text-xs text-[#5c584f] transition hover:bg-[rgba(250,247,241,1)]"
-                  />
-                  <button
-                    onClick={() => onToggleBookmark(problem.id)}
-                    className={`rounded-full px-3 py-2 text-xs transition ${
-                      isBookmarked
-                        ? 'border border-[rgba(184,134,11,0.18)] bg-[rgba(247,233,193,0.7)] text-[#8a6315]'
-                        : 'border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.75)] text-[#5c584f]'
-                    }`}
-                  >
-                    {isBookmarked ? 'Bookmarked' : 'Bookmark'}
-                  </button>
-                  <button
-                    onClick={() => onToggleSolved(problem.id)}
-                    className={`rounded-full px-3 py-2 text-xs transition ${
-                      isSolved
-                        ? 'border border-[rgba(41,63,96,0.14)] bg-[rgba(229,236,246,0.7)] text-[#2d4463]'
-                        : 'border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.75)] text-[#5c584f]'
-                    }`}
-                  >
-                    {isSolved ? 'Solved' : 'Mark Solved'}
-                  </button>
-                </div>
+
+                {/* Copy Button */}
+                <CopyButton
+                  textToCopy={`${problem.title}
+
+${problem.link}
+
+${problem.explanation}
+
+${problem.importance}
+
+Pseudocode:
+${problem.pseudocodeSteps
+  .map((step, idx) => `${idx + 1}. ${step}`)
+  .join('\n')}`}
+                  buttonClass="rounded-full border border-[rgba(96,90,81,0.10)] bg-white/80 px-3 py-2 text-xs text-[#5c584f] transition hover:bg-white"
+                />
               </div>
-              <a
-                href={problem.link}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-5 inline-flex min-h-[2.75rem] items-center rounded-full border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.75)] px-4 py-2 text-sm text-[#4d5763] transition hover:bg-[rgba(248,244,238,0.98)]"
-              >
-                Open problem link
-              </a>
             </article>
           );
         })}
+
+        {/* Generate More Button */}
+        <div className="flex justify-center pt-3">
+          <button
+            onClick={onGenerateMore}
+            disabled={isGeneratingMore}
+            className="rounded-full border border-[rgba(41,63,96,0.12)] bg-[rgba(240,236,229,0.92)] px-5 py-3 text-sm font-medium text-[#2d4463] transition hover:bg-[rgba(234,230,223,0.98)] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isGeneratingMore
+              ? 'Generating...'
+              : 'Generate More Problems'}
+          </button>
+        </div>
       </div>
     </section>
   );

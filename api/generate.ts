@@ -190,7 +190,12 @@ User context:
 ${jobDescription}
 
 Generation rules:
-- Provide 10 interview questions covering all four categories with mixed difficulty.
+-  Provide 10 interview questions covering all four categories with mixed difficulty.
+- Interview answers must be concise, precise, practical, and directly useful for real interviews.
+- Avoid long theoretical explanations or generic AI-style paragraphs.
+- Answers should sound like strong candidate responses suitable for quick revision before interviews.
+- Prefer structured answers with clarity, confidence, and practical reasoning.
+- Keep most answers between 3 to 6 lines unless deeper explanation is necessary.
 - Provide 8 DSA recommendations across multiple topics and include one daily challenge.
 - DSA recommendations must be different for different job descriptions and company contexts. Do not return the same generic list for every prompt.
 - Infer the most relevant DSA topics from the job description. For example: backend/platform roles may emphasize graphs, trees, heaps, hash maps, and system-oriented problem solving; frontend roles may emphasize arrays, strings, sliding window, and practical coding fluency; ML/data roles may emphasize arrays, matrices, heaps, graphs, and optimization patterns.
