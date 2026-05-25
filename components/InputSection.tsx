@@ -25,17 +25,16 @@ const InputSection: React.FC<InputSectionProps> = ({
   activeAction,
   onSelectAction,
 }) => (
-  <section className="relative overflow-hidden px-1 py-10 md:py-16">
+  <section className="relative overflow-hidden px-0 py-6 sm:px-1 sm:py-8 md:py-16">
     <div className="relative mx-auto max-w-5xl">
-      <div className="mb-10 text-center">
-        <h2 className="font-serif text-4xl leading-none tracking-[-0.04em] text-[#1f2933] md:text-[4.5rem]">
+      <div className="mb-6 text-center sm:mb-8 md:mb-10">
+        <h2 className="font-serif text-[2.35rem] leading-[0.95] tracking-[-0.04em] text-[#1f2933] sm:text-[3rem] md:text-[4.5rem]">
           What are you preparing for today?
         </h2>
-        
       </div>
 
       <form
-        className="mx-auto max-w-[58rem] rounded-[2rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(255,250,244,0.72)] p-4 shadow-[0_10px_40px_rgba(15,23,42,0.06)] backdrop-blur-[10px] md:rounded-[2rem] md:p-6"
+        className="mx-auto max-w-[58rem] rounded-[1.5rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(255,250,244,0.72)] p-3 shadow-[0_10px_40px_rgba(15,23,42,0.06)] backdrop-blur-[10px] sm:p-4 md:rounded-[2rem] md:p-6"
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
@@ -43,7 +42,7 @@ const InputSection: React.FC<InputSectionProps> = ({
       >
         <div className="grid gap-4">
           <input
-            className="h-16 rounded-[1.6rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(252,248,242,0.96)] px-5 text-sm text-[#202833] outline-none transition duration-300 placeholder:text-[#9b9488] focus:border-[#2c4467] focus:shadow-[0_0_0_5px_rgba(44,68,103,0.08)]"
+            className="h-14 rounded-[1.25rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(252,248,242,0.96)] px-4 text-sm text-[#202833] outline-none transition duration-300 placeholder:text-[#9b9488] focus:border-[#2c4467] focus:shadow-[0_0_0_5px_rgba(44,68,103,0.08)] sm:h-16 sm:rounded-[1.6rem] sm:px-5"
             placeholder="Role"
             value={role}
             onChange={(event) => setRole(event.target.value)}
@@ -51,7 +50,7 @@ const InputSection: React.FC<InputSectionProps> = ({
             required
           />
           <textarea
-            className="min-h-[8rem] w-full resize-none rounded-[1.8rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(252,248,242,0.96)] px-5 py-4 text-sm leading-7 text-[#202833] outline-none transition duration-300 placeholder:text-[#9b9488] focus:border-[#2c4467] focus:shadow-[0_0_0_5px_rgba(44,68,103,0.08)]"
+            className="min-h-[7.5rem] w-full resize-none rounded-[1.35rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(252,248,242,0.96)] px-4 py-4 text-sm leading-6 text-[#202833] outline-none transition duration-300 placeholder:text-[#9b9488] focus:border-[#2c4467] focus:shadow-[0_0_0_5px_rgba(44,68,103,0.08)] sm:min-h-[8rem] sm:rounded-[1.8rem] sm:px-5 sm:leading-7"
             placeholder={`Job description
 (Optional) Company name or company-specific hint`}
             value={jobDescription}
@@ -63,14 +62,14 @@ const InputSection: React.FC<InputSectionProps> = ({
         </div>
 
         <div className="mt-5 flex flex-col gap-4 border-t border-[rgba(96,90,81,0.1)] pt-5 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {quickActions.map((action) => (
               <button
                 key={action.id}
                 type="button"
                 onClick={() => !action.disabled && onSelectAction(action.id)}
                 disabled={action.disabled}
-                className={`rounded-full border px-4 py-2 text-sm transition duration-300 ${
+                className={`min-h-[2.75rem] rounded-full border px-3 py-2 text-sm transition duration-300 sm:px-4 ${
                   activeAction === action.id
                     ? 'border-[rgba(41,63,96,0.18)] bg-[#243b5a] text-[#f9f7f2] shadow-[0_8px_24px_rgba(36,59,90,0.18)]'
                     : 'border-[rgba(96,90,81,0.12)] bg-[rgba(252,248,242,0.8)] text-[#5c584f]'
@@ -85,7 +84,7 @@ const InputSection: React.FC<InputSectionProps> = ({
             type="submit"
             disabled={isLoading}
             aria-label="Send"
-            className="ml-auto flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(41,63,96,0.12)] bg-[#243b5a] text-[#f8f5ee] shadow-[0_10px_30px_rgba(36,59,90,0.2)] transition duration-300 hover:bg-[#1f3551] hover:shadow-[0_14px_36px_rgba(36,59,90,0.24)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="ml-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[rgba(41,63,96,0.12)] bg-[#243b5a] text-[#f8f5ee] shadow-[0_10px_30px_rgba(36,59,90,0.2)] transition duration-300 hover:bg-[#1f3551] hover:shadow-[0_14px_36px_rgba(36,59,90,0.24)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h11" strokeLinecap="round" />

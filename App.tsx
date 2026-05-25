@@ -225,13 +225,13 @@ const App: React.FC = () => {
     <div className="relative min-h-screen overflow-hidden bg-[#f6f1e8] text-[#1f2933]">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.68),transparent_34%),linear-gradient(180deg,#f7f2ea_0%,#f4efe6_52%,#f1ece2_100%)]" />
       <div className="pointer-events-none fixed inset-0 opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(rgba(28,38,49,0.08) 0.55px, transparent 0.55px)', backgroundSize: '18px 18px' }} />
-      <div className="pointer-events-none fixed left-[-10%] top-16 h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle,rgba(82,105,134,0.12),transparent_70%)] blur-3xl" />
-      <div className="pointer-events-none fixed right-[-8%] top-[18rem] h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle,rgba(176,161,135,0.12),transparent_72%)] blur-3xl" />
-      <div className="relative mx-auto w-full max-w-[1440px] px-4 pt-8 md:px-6">
-        <div className="pointer-events-none absolute inset-x-0 inset-y-0 rounded-[2.5rem] border border-[rgba(96,90,81,0.08)]" />
+      <div className="pointer-events-none fixed left-[-22%] top-12 h-[18rem] w-[18rem] rounded-full bg-[radial-gradient(circle,rgba(82,105,134,0.12),transparent_70%)] blur-3xl md:left-[-10%] md:top-16 md:h-[26rem] md:w-[26rem]" />
+      <div className="pointer-events-none fixed right-[-18%] top-[18rem] h-[16rem] w-[16rem] rounded-full bg-[radial-gradient(circle,rgba(176,161,135,0.12),transparent_72%)] blur-3xl md:right-[-8%] md:h-[24rem] md:w-[24rem]" />
+      <div className="relative mx-auto w-full max-w-[1440px] px-3 pt-4 sm:px-4 sm:pt-6 md:px-6 md:pt-8">
+        <div className="pointer-events-none absolute inset-x-0 inset-y-0 rounded-[1.75rem] border border-[rgba(96,90,81,0.08)] md:rounded-[2.5rem]" />
 
         <div className="relative flex min-h-screen flex-col">
-          <main className="mt-6 flex-1">
+          <main className="mt-3 flex-1 sm:mt-4 md:mt-6">
             <InputSection
               jobDescription={jobDescription}
               setJobDescription={setJobDescription}
@@ -247,9 +247,9 @@ const App: React.FC = () => {
               onSelectAction={(id) => handleSelectAction(id as 'interview' | 'dsa' | 'career')}
             />
 
-            <div id="results-anchor" className="relative z-10 -mt-2 w-full min-h-[16rem] pb-8 md:-mt-4">
+            <div id="results-anchor" className="relative z-10 -mt-1 w-full min-h-[16rem] pb-6 sm:-mt-2 sm:pb-8 md:-mt-4">
               {error && (
-                <div className="rounded-[1.6rem] border border-rose-200/70 bg-[rgba(255,245,244,0.9)] p-4 text-sm text-rose-700 shadow-[0_10px_40px_rgba(190,24,93,0.06)]">
+                <div className="rounded-[1.25rem] border border-rose-200/70 bg-[rgba(255,245,244,0.9)] p-4 text-sm leading-6 text-rose-700 shadow-[0_10px_40px_rgba(190,24,93,0.06)] md:rounded-[1.6rem]">
                   {error}
                 </div>
               )}
@@ -292,8 +292,8 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative z-10 flex justify-center px-4 pb-6 pt-6 md:px-6">
-        <p className="text-sm text-[#8b8478]">
+      <div className="relative z-10 flex justify-center px-4 pb-8 pt-4 text-center md:px-6 md:pb-6 md:pt-6">
+        <p className="text-sm leading-6 text-[#8b8478]">
           build by{' '}
           <a
             href="https://rizanmi.vercel.app/"
