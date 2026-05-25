@@ -57,7 +57,15 @@ const isRateLimitError = (error: unknown) => {
 
   if (!error || typeof error !== "object") return false;
   const message = "message" in error ? String((error as { message?: unknown }).message || "") : "";
-  return message.includes("429") || message.toLowerCase().includes("rate limit");
+  const normalized = message.toLowerCase();
+  
+  return (
+    message.includes("429") || 
+    normalized.includes("rate limit") ||
+    normalized.includes("quota exceeded") ||
+    normalized.includes("resource exhausted") ||
+    normalized.includes("bom1::")
+  );
 };
 
 const isTransientProviderError = (error: unknown) => {
@@ -72,10 +80,11 @@ const isTransientProviderError = (error: unknown) => {
     normalized.includes("function_invocation_failed") ||
     normalized.includes("internal") ||
     normalized.includes("server error") ||
-    normalized.includes("unavailable") ||
-    normalized.includes("bom1::")
+    normalized.includes("unavailable")
   );
 };
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const systemPrompt = `
 You are an expert AI career preparation assistant.
@@ -198,7 +207,7 @@ Generation rules:
     let response: Awaited<ReturnType<GoogleGenAI["models"]["generateContent"]>> | null = null;
     let lastError: unknown = null;
 
-    // Try the chosen model first, then fall back to cheaper models if Gemini returns a transient internal error.
+    // Try the chosen model first, then fall back to cheaper models if Gemini returns a transient internal error or rate limit.
     const primaryProvider = getProviderSelection(body);
     const modelChain = primaryProvider ? getModelFallbackChain(primaryProvider.model) : ["gemini-2.5-flash"];
 
@@ -219,13 +228,23 @@ Generation rules:
         } catch (error) {
           lastError = error;
 
-          const shouldRetry = isRateLimitError(error) || isTransientProviderError(error);
-          if (!shouldRetry || attempt === availableProviders - 1) {
-            // If not transient, fail fast. If transient, we'll fall back to the next model in the chain.
-            if (!isTransientProviderError(error)) {
-              throw error;
-            }
+          const isRateLimit = isRateLimitError(error);
+          const isTransient = isTransientProviderError(error);
+          const shouldRetry = isRateLimit || isTransient;
+
+          if (!shouldRetry) {
+            throw error;
+          }
+
+          if (attempt === availableProviders - 1) {
+            // Exhausted attempts for this model, try next model in chain
+            console.warn(`[AI Router] ${isRateLimit ? "Rate limited" : "Transient error"} on ${model}, trying next model`);
             break;
+          }
+
+          // Add small delay before retrying (helps with rate limits)
+          if (isRateLimit && attempt < availableProviders - 1) {
+            await sleep(500 + attempt * 200);
           }
         }
       }

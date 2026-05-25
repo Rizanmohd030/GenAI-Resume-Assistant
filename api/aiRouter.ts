@@ -1,6 +1,15 @@
 import type { GenerateRequest, GenerationFocus } from "../types";
 
-type SupportedGeminiModel = "gemini-2.5-flash-lite" | "gemini-2.5-flash" | "gemini-2.5-pro";
+type SupportedGeminiModel = 
+  | "gemini-2.5-flash-lite" 
+  | "gemini-2.5-flash" 
+  | "gemini-2.5-pro"
+  | "gemini-2-flash-lite"
+  | "gemini-2-flash"
+  | "gemini-2-pro"
+  | "gemini-1.5-flash-lite"
+  | "gemini-1.5-flash"
+  | "gemini-1.5-pro";
 
 interface RouteDecision {
   model: SupportedGeminiModel;
@@ -33,6 +42,12 @@ const modelEnvPrefixes: Record<SupportedGeminiModel, string> = {
   "gemini-2.5-flash-lite": "GEMINI_FLASH_LITE",
   "gemini-2.5-flash": "GEMINI_FLASH",
   "gemini-2.5-pro": "GEMINI_PRO",
+  "gemini-2-flash-lite": "GEMINI_2_FLASH_LITE",
+  "gemini-2-flash": "GEMINI_2_FLASH",
+  "gemini-2-pro": "GEMINI_2_PRO",
+  "gemini-1.5-flash-lite": "GEMINI_1_5_FLASH_LITE",
+  "gemini-1.5-flash": "GEMINI_1_5_FLASH",
+  "gemini-1.5-pro": "GEMINI_1_5_PRO",
 };
 
 const modelSpecificKeys = (model: SupportedGeminiModel) => {
@@ -193,7 +208,111 @@ export const getAvailableProviderCount = (request: GenerateRequest) => {
 };
 
 export const getModelFallbackChain = (model: SupportedGeminiModel): SupportedGeminiModel[] => {
-  if (model === "gemini-2.5-pro") return ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"];
-  if (model === "gemini-2.5-flash") return ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
-  return ["gemini-2.5-flash-lite"];
+  // Comprehensive fallback chain: try 2.5 series (newest), then 2 series, then 1.5 series
+  // Each family goes from most capable (pro) to most available (lite)
+  
+  if (model === "gemini-2.5-pro") {
+    return [
+      "gemini-2.5-pro",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-2-pro",
+      "gemini-2-flash",
+      "gemini-2-flash-lite",
+      "gemini-1.5-pro",
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-lite",
+    ];
+  }
+
+  if (model === "gemini-2.5-flash") {
+    return [
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-2.5-pro",
+      "gemini-2-flash",
+      "gemini-2-flash-lite",
+      "gemini-2-pro",
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-lite",
+      "gemini-1.5-pro",
+    ];
+  }
+
+  if (model === "gemini-2.5-flash-lite") {
+    return [
+      "gemini-2.5-flash-lite",
+      "gemini-2.5-flash",
+      "gemini-2-flash-lite",
+      "gemini-2-flash",
+      "gemini-1.5-flash-lite",
+      "gemini-1.5-flash",
+    ];
+  }
+
+  // Fallback chains for 2.x series models
+  if (model === "gemini-2-pro") {
+    return [
+      "gemini-2-pro",
+      "gemini-2-flash",
+      "gemini-2-flash-lite",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-1.5-pro",
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-lite",
+    ];
+  }
+
+  if (model === "gemini-2-flash") {
+    return [
+      "gemini-2-flash",
+      "gemini-2-flash-lite",
+      "gemini-2-pro",
+      "gemini-2.5-flash-lite",
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-lite",
+    ];
+  }
+
+  if (model === "gemini-2-flash-lite") {
+    return [
+      "gemini-2-flash-lite",
+      "gemini-2-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-1.5-flash-lite",
+      "gemini-1.5-flash",
+    ];
+  }
+
+  // Fallback chains for 1.5.x series models (older but still functional)
+  if (model === "gemini-1.5-pro") {
+    return [
+      "gemini-1.5-pro",
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-lite",
+      "gemini-2.5-flash",
+      "gemini-2-flash",
+    ];
+  }
+
+  if (model === "gemini-1.5-flash") {
+    return [
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-lite",
+      "gemini-1.5-pro",
+      "gemini-2.5-flash-lite",
+      "gemini-2-flash-lite",
+    ];
+  }
+
+  // Default for unknown models: try newest first
+  return [
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2-flash",
+    "gemini-2-flash-lite",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-lite",
+  ];
 };
