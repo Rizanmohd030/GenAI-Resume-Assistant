@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import type { DifficultyLevel, DsaTopic, GenerateRequest, QuestionCategory } from "../types";
+import { getAvailableProviderCount, getProviderSelection } from "./aiRouter";
 
 const allowedDifficulties: DifficultyLevel[] = ["Easy", "Medium", "Hard"];
 const allowedCategories: QuestionCategory[] = ["HR", "Technical", "Behavioral", "Role-Specific"];
@@ -41,6 +42,24 @@ const asStringArray = (value: unknown, fallback: string[] = []) => {
 
 const createId = (prefix: string, index: number) => `${prefix}-${index + 1}`;
 
+const getErrorStatus = (error: unknown) => {
+  if (!error || typeof error !== "object") return undefined;
+  const candidate = error as { status?: unknown; code?: unknown };
+
+  if (typeof candidate.status === "number") return candidate.status;
+  if (typeof candidate.code === "number") return candidate.code;
+  return undefined;
+};
+
+const isRateLimitError = (error: unknown) => {
+  const status = getErrorStatus(error);
+  if (status === 429) return true;
+
+  if (!error || typeof error !== "object") return false;
+  const message = "message" in error ? String((error as { message?: unknown }).message || "") : "";
+  return message.includes("429") || message.toLowerCase().includes("rate limit");
+};
+
 const systemPrompt = `
 You are an expert AI career preparation assistant.
 Return exactly one valid JSON object with no markdown, no backticks, and no prose outside JSON.
@@ -69,7 +88,8 @@ The response must follow this schema:
         "platform": "LeetCode | GeeksforGeeks | HackerRank | NeetCode",
         "link": "https://...",
         "explanation": "string",
-        "importance": "string"
+        "importance": "string",
+        "pseudocodeSteps": ["string"]
       }
     ],
     "dailyChallenge": {
@@ -80,7 +100,8 @@ The response must follow this schema:
       "platform": "LeetCode | GeeksforGeeks | HackerRank | NeetCode",
       "link": "https://...",
       "explanation": "string",
-      "importance": "string"
+      "importance": "string",
+      "pseudocodeSteps": ["string"]
     },
     "blind75Recommendations": ["string"]
   },
@@ -108,24 +129,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const body = req.body as GenerateRequest;
-    const { jobDescription, role, experienceLevel, focus = "full" } = body;
+    const { jobDescription, role, companyContext, experienceLevel, focus = "full" } = body;
 
     if (!jobDescription || !role || !experienceLevel) {
       return res.status(400).json({ error: "jobDescription, role, and experienceLevel are required" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "Missing GEMINI_API_KEY on server" });
+    const availableProviders = getAvailableProviderCount(body);
+    if (availableProviders === 0) {
+      return res.status(500).json({
+        error:
+          "Missing Gemini API keys on server. Set GEMINI_API_KEY, GEMINI_API_KEY_1..., GEMINI_API_KEYS, or model-specific pools.",
+      });
     }
-
-    const ai = new GoogleGenAI({ apiKey });
 
     const focusGuidance =
       focus === "interview"
         ? "Emphasize fresh interview questions and answers while still returning all schema fields."
         : focus === "dsa"
-          ? "Emphasize DSA recommendations, fresh daily challenge ideas, and role-specific coding prep while still returning all schema fields."
+          ? "Emphasize highly role-specific DSA recommendations derived from the job description, the company context, and the likely interview bar for that role while still returning all schema fields."
           : focus === "career"
             ? "Emphasize stronger resume bullets, ATS keywords, cover letter, LinkedIn summary, and project suggestions while still returning all schema fields."
             : "Balance all three product sections equally.";
@@ -135,6 +157,7 @@ ${systemPrompt}
 
 User context:
 - Target role: ${role}
+- Company context: ${companyContext?.trim() || "Not provided"}
 - Experience level: ${experienceLevel}
 - Focus: ${focus}
 - Job description:
@@ -143,16 +166,46 @@ ${jobDescription}
 Generation rules:
 - Provide 10 interview questions covering all four categories with mixed difficulty.
 - Provide 8 DSA recommendations across multiple topics and include one daily challenge.
+- DSA recommendations must be different for different job descriptions and company contexts. Do not return the same generic list for every prompt.
+- Infer the most relevant DSA topics from the job description. For example: backend/platform roles may emphasize graphs, trees, heaps, hash maps, and system-oriented problem solving; frontend roles may emphasize arrays, strings, sliding window, and practical coding fluency; ML/data roles may emphasize arrays, matrices, heaps, graphs, and optimization patterns.
+- When a company context is provided, adapt the DSA list to that likely interview style and difficulty bar.
+- For each DSA recommendation, explain why it is relevant for this specific role or company context, not just why it is generally useful.
+- For each DSA recommendation and the daily challenge, include 4 to 7 short pseudocode steps that describe the solving approach without giving full code.
+- Pseudocode must stay language-agnostic and should guide thinking, not reveal a copy-paste answer.
 - Make career-prep content highly tailored to the job description.
+- When company context is provided, make the answers and suggestions specific to that company, product space, or hiring emphasis.
 - ${focusGuidance}
 - Use practical, production-ready language.
 `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: { responseMimeType: "application/json" },
-    });
+    let response: Awaited<ReturnType<GoogleGenAI["models"]["generateContent"]>> | null = null;
+    let lastError: unknown = null;
+
+    for (let attempt = 0; attempt < availableProviders; attempt += 1) {
+      const provider = getProviderSelection(body);
+      if (!provider) break;
+
+      try {
+        const ai = new GoogleGenAI({ apiKey: provider.key });
+        response = await ai.models.generateContent({
+          model: provider.model,
+          contents: prompt,
+          config: { responseMimeType: "application/json" },
+        });
+        console.info(`[AI Router] focus=${focus} model=${provider.model} pool=${provider.poolName}`);
+        break;
+      } catch (error) {
+        lastError = error;
+
+        if (!isRateLimitError(error) || attempt === availableProviders - 1) {
+          throw error;
+        }
+      }
+    }
+
+    if (!response) {
+      throw lastError || new Error("Failed to generate content");
+    }
 
     const rawText = response.text?.trim() ?? "";
     const parsed = JSON.parse(rawText);
@@ -177,6 +230,12 @@ Generation rules:
           link: String(item?.link || "").trim(),
           explanation: String(item?.explanation || "").trim(),
           importance: String(item?.importance || "").trim(),
+          pseudocodeSteps: asStringArray(item?.pseudocodeSteps, [
+            "Clarify the input, output, and edge cases first.",
+            "Identify the core data structure or pattern to use.",
+            "Walk through the main algorithm step by step.",
+            "Verify the result on a small example before coding.",
+          ]),
         }))
       : [];
 
@@ -209,6 +268,12 @@ Generation rules:
           importance: String(
             dailyChallengeSource?.importance || "Frequently used to test hash map fundamentals in interviews."
           ).trim(),
+          pseudocodeSteps: asStringArray(dailyChallengeSource?.pseudocodeSteps, [
+            "Scan the array once while tracking values seen so far.",
+            "For each value, compute the complement needed to reach the target.",
+            "If the complement was seen earlier, return the matching indices.",
+            "Otherwise store the current value with its index and continue.",
+          ]),
         },
         blind75Recommendations: asStringArray(parsed?.dsa?.blind75Recommendations, [
           "Two Sum",
