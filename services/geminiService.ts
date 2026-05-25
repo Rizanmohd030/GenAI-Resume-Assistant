@@ -24,7 +24,12 @@ export const generateCareerContent = async (payload: GenerateRequest) => {
       console.error("Failed to parse JSON from API", e);
       // Since it's not JSON, it might be an HTML error page (like a 404 from Vite proxy)
       if (!response.ok) {
-         throw new Error(`API returned ${response.status} ${response.statusText}. Ensure the backend is running.`);
+         const preview = text.trim().slice(0, 160);
+         throw new Error(
+           preview
+             ? `API returned ${response.status} ${response.statusText}: ${preview}`
+             : `API returned ${response.status} ${response.statusText}.`
+         );
       }
       throw new Error(`Server returned invalid JSON: ${text}`);
     }

@@ -22,7 +22,7 @@ const unique = (values: string[]) => [...new Set(values)];
 
 const genericGeminiKeys = () => {
   const numberedKeys = Object.entries(process.env)
-    .filter(([name, value]) => /^GEMINI_API_KEY(?:_\d+)?$/.test(name) && value?.trim())
+    .filter(([name, value]) => /^GEMINI_API_KEY(?:_?\d+)?$/.test(name) && value?.trim())
     .sort(([left], [right]) => left.localeCompare(right, undefined, { numeric: true }))
     .map(([, value]) => value!.trim());
 
@@ -38,7 +38,7 @@ const modelEnvPrefixes: Record<SupportedGeminiModel, string> = {
 const modelSpecificKeys = (model: SupportedGeminiModel) => {
   const prefix = modelEnvPrefixes[model];
   const numberedKeys = Object.entries(process.env)
-    .filter(([name, value]) => new RegExp(`^${prefix}_KEY(?:_\\d+)?$`).test(name) && value?.trim())
+    .filter(([name, value]) => new RegExp(`^${prefix}_KEY(?:_?\\d+)?$`).test(name) && value?.trim())
     .sort(([left], [right]) => left.localeCompare(right, undefined, { numeric: true }))
     .map(([, value]) => value!.trim());
 

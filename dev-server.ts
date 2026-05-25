@@ -2,14 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import handler from './api/generate.js';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import path from 'path';
-
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true });
+});
 
 app.post('/api/generate', async (req, res) => {
   // Wrap req and res to mimic VercelRequest and VercelResponse
@@ -37,8 +38,9 @@ app.post('/api/generate', async (req, res) => {
 });
 
 const PORT = 3001;
-const server = app.listen(PORT, () => {
-  console.log(`Local API server running on port ${PORT}`);
+const HOST = '0.0.0.0';
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Local API server running on http://${HOST}:${PORT}`);
 });
 
 server.on('error', (err: any) => {
