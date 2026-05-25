@@ -18,6 +18,7 @@ import type {
 const App: React.FC = () => {
   const [jobDescription, setJobDescription] = useState('');
   const [role, setRole] = useState('');
+  const [companyContext, setCompanyContext] = useState('');
   const [experienceLevel, setExperienceLevel] = useState('0-2 years');
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
   const [activeSection, setActiveSection] = useState('interview');
@@ -28,6 +29,7 @@ const App: React.FC = () => {
   const [selectedAction, setSelectedAction] = useState<'interview' | 'dsa' | 'career'>('interview');
   const [solvedProblemIds, setSolvedProblemIds] = useState<string[]>([]);
   const [bookmarkedProblemIds, setBookmarkedProblemIds] = useState<string[]>([]);
+  const [shouldRevealResults, setShouldRevealResults] = useState(false);
 
   useEffect(() => {
     try {
@@ -55,9 +57,17 @@ const App: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [toastMessage]);
 
+  useEffect(() => {
+    if (!shouldRevealResults) return;
+
+    const resultsAnchor = document.getElementById('results-anchor');
+    resultsAnchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [shouldRevealResults, generatedContent, error]);
+
   const userInput: CareerInput = {
     jobDescription,
     role,
+    companyContext,
     experienceLevel,
   };
 
@@ -65,6 +75,7 @@ const App: React.FC = () => {
     if (!jobDescription || !role || !experienceLevel) return;
 
     setError(null);
+    setShouldRevealResults(true);
     if (focus === 'full') {
       setIsLoading(true);
     } else {
@@ -147,6 +158,7 @@ const App: React.FC = () => {
         <body>
           <h1>GenAI Career Assistant</h1>
           <p><strong>Role:</strong> ${role}</p>
+          <p><strong>Company Context:</strong> ${companyContext || 'Not provided'}</p>
           <p><strong>Experience Level:</strong> ${experienceLevel}</p>
           <h2>Resume Highlights</h2>
           <ul>${generatedContent.careerPrep.resumeHighlights.map((item) => `<li>${item}</li>`).join('')}</ul>
@@ -185,10 +197,11 @@ const App: React.FC = () => {
   ];
 
   const handlePrimarySubmit = () => {
-    runGeneration(selectedAction);
+    runGeneration(generatedContent ? selectedAction : 'full');
   };
 
   const isBusy = isLoading || loadingFocus !== null;
+  const isInitialLoading = isBusy && !generatedContent;
   const visibleInterview = Boolean(generatedContent && selectedAction === 'interview');
   const visibleDsa = Boolean(generatedContent && selectedAction === 'dsa');
   const visibleCareer = Boolean(generatedContent && selectedAction === 'career');
@@ -209,77 +222,88 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
-      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,#f7f8fc_0%,#f6f7fb_48%,#eef3fb_100%)]" />
-      <div className="pointer-events-none fixed left-[5%] top-28 h-[74vh] w-[52vw] rounded-[3rem] bg-[linear-gradient(180deg,#0f4d7f,#235f93)] shadow-[0_40px_120px_rgba(21,75,117,0.25)]" />
-      <div className="pointer-events-none fixed right-[6%] top-24 h-[78vh] w-[34vw] rounded-[3rem] bg-[linear-gradient(180deg,#f8f8f5,#eef2f7)] shadow-[0_40px_100px_rgba(148,163,184,0.15)]" />
-      <div className="pointer-events-none fixed left-[4%] top-24 h-[82vh] w-[92vw] rounded-[3rem] border border-slate-200/80" />
+    <div className="relative min-h-screen overflow-hidden bg-[#f6f1e8] text-[#1f2933]">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.68),transparent_34%),linear-gradient(180deg,#f7f2ea_0%,#f4efe6_52%,#f1ece2_100%)]" />
+      <div className="pointer-events-none fixed inset-0 opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(rgba(28,38,49,0.08) 0.55px, transparent 0.55px)', backgroundSize: '18px 18px' }} />
+      <div className="pointer-events-none fixed left-[-10%] top-16 h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle,rgba(82,105,134,0.12),transparent_70%)] blur-3xl" />
+      <div className="pointer-events-none fixed right-[-8%] top-[18rem] h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle,rgba(176,161,135,0.12),transparent_72%)] blur-3xl" />
+      <div className="relative mx-auto w-full max-w-[1440px] px-4 pt-8 md:px-6">
+        <div className="pointer-events-none absolute inset-x-0 inset-y-0 rounded-[2.5rem] border border-[rgba(96,90,81,0.08)]" />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-[1440px] flex-col px-4 py-8 md:px-6">
+        <div className="relative flex min-h-screen flex-col">
+          <main className="mt-6 flex-1">
+            <InputSection
+              jobDescription={jobDescription}
+              setJobDescription={setJobDescription}
+              role={role}
+              setRole={setRole}
+              companyContext={companyContext}
+              setCompanyContext={setCompanyContext}
+              experienceLevel={experienceLevel}
+              onSubmit={handlePrimarySubmit}
+              isLoading={isBusy}
+              quickActions={quickActions}
+              activeAction={selectedAction}
+              onSelectAction={(id) => handleSelectAction(id as 'interview' | 'dsa' | 'career')}
+            />
 
-        <main className="mt-6 flex-1">
-          <InputSection
-            jobDescription={jobDescription}
-            setJobDescription={setJobDescription}
-            role={role}
-            setRole={setRole}
-            experienceLevel={experienceLevel}
-            onSubmit={handlePrimarySubmit}
-            isLoading={isBusy}
-            quickActions={quickActions}
-            activeAction={selectedAction}
-            onSelectAction={(id) => handleSelectAction(id as 'interview' | 'dsa' | 'career')}
-          />
+            <div id="results-anchor" className="relative z-10 -mt-2 w-full min-h-[16rem] pb-8 md:-mt-4">
+              {error && (
+                <div className="rounded-[1.6rem] border border-rose-200/70 bg-[rgba(255,245,244,0.9)] p-4 text-sm text-rose-700 shadow-[0_10px_40px_rgba(190,24,93,0.06)]">
+                  {error}
+                </div>
+              )}
 
-          <div className="mt-8">
-            {error && (
-              <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 shadow-[0_20px_45px_rgba(244,63,94,0.08)]">
-                {error}
-              </div>
-            )}
+              {isInitialLoading && <Loader />}
 
-            {isBusy && <Loader />}
+              {generatedContent && (
+                <>
+                  {visibleInterview && (
+                    <InterviewSection
+                      data={generatedContent.interview as InterviewSectionData}
+                      onGenerateMore={() => runGeneration('interview')}
+                      isGeneratingMore={loadingFocus === 'interview'}
+                    />
+                  )}
 
-            {!isLoading && generatedContent && (
-              <>
-                {visibleInterview && (
-                  <InterviewSection
-                    data={generatedContent.interview as InterviewSectionData}
-                    onGenerateMore={() => runGeneration('interview')}
-                    isGeneratingMore={loadingFocus === 'interview'}
-                  />
-                )}
+                  {visibleDsa && (
+                    <DsaSection
+                      data={generatedContent.dsa as DsaSectionData}
+                      solvedProblemIds={solvedProblemIds}
+                      bookmarkedProblemIds={bookmarkedProblemIds}
+                      onToggleSolved={handleToggleSolved}
+                      onToggleBookmark={handleToggleBookmark}
+                    />
+                  )}
 
-                {visibleDsa && (
-                  <DsaSection
-                    data={generatedContent.dsa as DsaSectionData}
-                    solvedProblemIds={solvedProblemIds}
-                    bookmarkedProblemIds={bookmarkedProblemIds}
-                    onToggleSolved={handleToggleSolved}
-                    onToggleBookmark={handleToggleBookmark}
-                  />
-                )}
+                  {visibleCareer && (
+                    <CareerPrepSection
+                      data={generatedContent.careerPrep as CareerPrepSectionData}
+                      onFieldChange={handleCareerFieldChange}
+                      onRegenerate={() => runGeneration('career')}
+                      isRegenerating={loadingFocus === 'career'}
+                      onDownloadPdf={handleDownloadPdf}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          </main>
+        </div>
+      </div>
 
-                {visibleCareer && (
-                  <CareerPrepSection
-                    data={generatedContent.careerPrep as CareerPrepSectionData}
-                    onFieldChange={handleCareerFieldChange}
-                    onRegenerate={() => runGeneration('career')}
-                    isRegenerating={loadingFocus === 'career'}
-                    onDownloadPdf={handleDownloadPdf}
-                  />
-                )}
-              </>
-            )}
-
-            {!isLoading && !generatedContent && (
-              <div className="rounded-[2rem] border border-slate-200 bg-white/90 p-8 text-center text-slate-600 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-                Enter a role and job description, choose Interview Q&amp;A, DSA Preparation, or Career Prep, then press
-                send. If you do nothing, Interview Q&amp;A stays selected by default.
-              </div>
-            )}
-          </div>
-        </main>
+      <div className="relative z-10 flex justify-center px-4 pb-6 pt-6 md:px-6">
+        <p className="text-sm text-[#8b8478]">
+          build by{' '}
+          <a
+            href="https://rizanmi.vercel.app/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-serif text-[1.2rem] text-[#4b5563] transition hover:text-[#243b5a]"
+          >
+            <strong>Rizan</strong>
+          </a>
+        </p>
       </div>
 
       {toastMessage && <Toast message={toastMessage} />}

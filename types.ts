@@ -13,6 +13,7 @@ export type DsaTopic =
 export interface CareerInput {
   jobDescription: string;
   role: string;
+  companyContext?: string;
   experienceLevel: string;
 }
 
@@ -33,6 +34,7 @@ export interface DsaProblem {
   link: string;
   explanation: string;
   importance: string;
+  pseudocodeSteps: string[];
 }
 
 export interface InterviewSectionData {

@@ -37,18 +37,18 @@ const DsaSection: React.FC<DsaSectionProps> = ({
       : data.recommendations.filter((problem) => problem.topic === activeTopic);
   }, [activeTopic, data.recommendations]);
 
-  const solvedCount = data.recommendations.filter((problem) => solvedProblemIds.includes(problem.id)).length;
-  const progress = data.recommendations.length ? Math.round((solvedCount / data.recommendations.length) * 100) : 0;
-
   return (
-    <section id="dsa" className="rounded-[2rem] border border-slate-200 bg-white/92 p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+    <section
+      id="dsa"
+      className="rounded-[2rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(255,252,247,0.84)] p-6 shadow-[0_10px_40px_rgba(15,23,42,0.06)] backdrop-blur-[10px]"
+    >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Section 2</p>
-          <h2 className="mt-2 font-serif text-3xl text-slate-900">DSA Preparation</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-            Practice DSA questions in a clean, readable structure with explanation, interview value, and direct links
-            to the source platform.
+          <p className="text-xs uppercase tracking-[0.35em] text-[#7a756b]">Section 2</p>
+          <h2 className="mt-2 font-serif text-3xl text-[#1f2933]">DSA Preparation</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[#625e57]">
+            Practice the DSA problems most likely to matter for this role, this company context, and the skills
+            emphasized in the job description.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -58,8 +58,8 @@ const DsaSection: React.FC<DsaSectionProps> = ({
               onClick={() => setActiveTopic(topic)}
               className={`rounded-full px-4 py-2 text-sm transition ${
                 activeTopic === topic
-                  ? 'bg-sky-600 text-white'
-                  : 'border border-slate-200 bg-slate-50 text-slate-600 hover:bg-sky-50'
+                  ? 'bg-[#243b5a] text-[#f8f5ee] shadow-[0_8px_24px_rgba(36,59,90,0.14)]'
+                  : 'border border-[rgba(96,90,81,0.12)] bg-[rgba(252,248,242,0.78)] text-[#5c584f] hover:bg-[rgba(247,242,235,0.96)]'
               }`}
             >
               {topic}
@@ -68,107 +68,75 @@ const DsaSection: React.FC<DsaSectionProps> = ({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
-        <div className="space-y-4">
-          <article className="rounded-[1.5rem] border border-slate-200 bg-[linear-gradient(180deg,#0f4d7f,#1f6aa1)] p-5">
-            <p className="text-xs uppercase tracking-[0.3em] text-sky-100/75">Daily Challenge</p>
-            <h3 className="mt-3 text-xl text-white">{data.dailyChallenge.title}</h3>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white">{data.dailyChallenge.topic}</span>
-              <span className="rounded-full bg-white px-3 py-1 text-xs text-sky-900">{data.dailyChallenge.difficulty}</span>
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white">{data.dailyChallenge.platform}</span>
-            </div>
-            <p className="mt-4 text-sm leading-6 text-sky-50">{data.dailyChallenge.explanation}</p>
-            <p className="mt-3 text-sm leading-6 text-sky-100/80">{data.dailyChallenge.importance}</p>
-            <a
-              href={data.dailyChallenge.link}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-5 inline-flex rounded-full border border-white/20 bg-white px-4 py-2 text-sm text-sky-900 transition hover:bg-sky-50"
+      <div className="mt-6 grid gap-4">
+        {filteredProblems.map((problem) => {
+          const isSolved = solvedProblemIds.includes(problem.id);
+          const isBookmarked = bookmarkedProblemIds.includes(problem.id);
+
+          return (
+            <article
+              key={problem.id}
+              className="rounded-[1.5rem] border border-[rgba(96,90,81,0.12)] bg-[rgba(250,246,240,0.88)] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.03)]"
             >
-              Open problem
-            </a>
-          </article>
-
-          <article className="rounded-[1.5rem] border border-slate-200 bg-slate-50/90 p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Progress Tracker</p>
-                <h3 className="mt-2 text-xl text-slate-900">{progress}% complete</h3>
-              </div>
-              <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-600">
-                {solvedCount}/{data.recommendations.length} solved
-              </span>
-            </div>
-            <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-200">
-              <div className="h-full rounded-full bg-[linear-gradient(90deg,#60a5fa,#0f4d7f)]" style={{ width: `${progress}%` }} />
-            </div>
-            <div className="mt-5">
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Blind 75 Focus</p>
-              <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                {data.blind75Recommendations.map((item) => (
-                  <li key={item} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </article>
-        </div>
-
-        <div className="grid gap-4">
-          {filteredProblems.map((problem) => {
-            const isSolved = solvedProblemIds.includes(problem.id);
-            const isBookmarked = bookmarkedProblemIds.includes(problem.id);
-
-            return (
-              <article key={problem.id} className="rounded-[1.5rem] border border-slate-200 bg-slate-50/90 p-5">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600">{problem.topic}</span>
-                      <span className="rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs text-sky-700">{problem.difficulty}</span>
-                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600">{problem.platform}</span>
-                    </div>
-                    <h3 className="mt-3 text-xl text-slate-900">{problem.title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-slate-600">{problem.explanation}</p>
-                    <p className="mt-3 text-sm leading-6 text-slate-500">{problem.importance}</p>
-                  </div>
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
                   <div className="flex flex-wrap gap-2">
-                    <CopyButton
-                      textToCopy={`${problem.title}\n${problem.link}\n${problem.explanation}\n${problem.importance}`}
-                      buttonClass="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 transition hover:bg-slate-100"
-                    />
-                    <button
-                      onClick={() => onToggleBookmark(problem.id)}
-                      className={`rounded-full px-3 py-2 text-xs transition ${
-                        isBookmarked ? 'border border-amber-200 bg-amber-100 text-amber-700' : 'border border-slate-200 bg-white text-slate-600'
-                      }`}
-                    >
-                      {isBookmarked ? 'Bookmarked' : 'Bookmark'}
-                    </button>
-                    <button
-                      onClick={() => onToggleSolved(problem.id)}
-                      className={`rounded-full px-3 py-2 text-xs transition ${
-                        isSolved ? 'border border-sky-200 bg-sky-100 text-sky-700' : 'border border-slate-200 bg-white text-slate-600'
-                      }`}
-                    >
-                      {isSolved ? 'Solved' : 'Mark Solved'}
-                    </button>
+                    <span className="rounded-full border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.72)] px-3 py-1 text-xs text-[#58544b]">{problem.topic}</span>
+                    <span className="rounded-full border border-[rgba(41,63,96,0.08)] bg-[rgba(229,236,246,0.7)] px-3 py-1 text-xs text-[#2d4463]">{problem.difficulty}</span>
+                    <span className="rounded-full border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.72)] px-3 py-1 text-xs text-[#58544b]">{problem.platform}</span>
+                  </div>
+                  <h3 className="mt-3 text-xl text-[#1f2933]">{problem.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-[#625e57]">{problem.explanation}</p>
+                  <p className="mt-3 text-sm leading-7 text-[#767067]">{problem.importance}</p>
+                  <div className="mt-4 rounded-[1.2rem] border border-[rgba(41,63,96,0.1)] bg-[rgba(244,248,252,0.72)] p-4">
+                    <p className="text-xs uppercase tracking-[0.28em] text-[#607086]">Pseudocode Hint</p>
+                    <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-7 text-[#44515f]">
+                      {problem.pseudocodeSteps.map((step, index) => (
+                        <li key={`${problem.id}-step-${index}`}>{step}</li>
+                      ))}
+                    </ol>
                   </div>
                 </div>
-                <a
-                  href={problem.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-5 inline-flex rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 transition hover:bg-sky-50"
-                >
-                  Open problem link
-                </a>
-              </article>
-            );
-          })}
-        </div>
+                <div className="flex flex-wrap gap-2">
+                  <CopyButton
+                    textToCopy={`${problem.title}\n${problem.link}\n${problem.explanation}\n${problem.importance}\n\nPseudocode:\n${problem.pseudocodeSteps
+                      .map((step, index) => `${index + 1}. ${step}`)
+                      .join('\n')}`}
+                    buttonClass="rounded-full border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.75)] px-3 py-2 text-xs text-[#5c584f] transition hover:bg-[rgba(250,247,241,1)]"
+                  />
+                  <button
+                    onClick={() => onToggleBookmark(problem.id)}
+                    className={`rounded-full px-3 py-2 text-xs transition ${
+                      isBookmarked
+                        ? 'border border-[rgba(184,134,11,0.18)] bg-[rgba(247,233,193,0.7)] text-[#8a6315]'
+                        : 'border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.75)] text-[#5c584f]'
+                    }`}
+                  >
+                    {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+                  </button>
+                  <button
+                    onClick={() => onToggleSolved(problem.id)}
+                    className={`rounded-full px-3 py-2 text-xs transition ${
+                      isSolved
+                        ? 'border border-[rgba(41,63,96,0.14)] bg-[rgba(229,236,246,0.7)] text-[#2d4463]'
+                        : 'border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.75)] text-[#5c584f]'
+                    }`}
+                  >
+                    {isSolved ? 'Solved' : 'Mark Solved'}
+                  </button>
+                </div>
+              </div>
+              <a
+                href={problem.link}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-5 inline-flex rounded-full border border-[rgba(96,90,81,0.12)] bg-[rgba(255,255,255,0.75)] px-4 py-2 text-sm text-[#4d5763] transition hover:bg-[rgba(248,244,238,0.98)]"
+              >
+                Open problem link
+              </a>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
