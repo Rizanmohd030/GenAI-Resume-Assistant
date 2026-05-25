@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import type { DifficultyLevel, DsaTopic, GenerateRequest, QuestionCategory } from "../types";
-import { getAvailableProviderCount, getProviderSelection } from "./aiRouter";
+import { getAvailableProviderCount, getModelFallbackChain, getProviderSelection } from "./aiRouter";
 
 const allowedDifficulties: DifficultyLevel[] = ["Easy", "Medium", "Hard"];
 const allowedCategories: QuestionCategory[] = ["HR", "Technical", "Behavioral", "Role-Specific"];
@@ -58,6 +58,23 @@ const isRateLimitError = (error: unknown) => {
   if (!error || typeof error !== "object") return false;
   const message = "message" in error ? String((error as { message?: unknown }).message || "") : "";
   return message.includes("429") || message.toLowerCase().includes("rate limit");
+};
+
+const isTransientProviderError = (error: unknown) => {
+  const status = getErrorStatus(error);
+  if (status && status >= 500) return true;
+
+  if (!error || typeof error !== "object") return false;
+  const message = "message" in error ? String((error as { message?: unknown }).message || "") : "";
+  const normalized = message.toLowerCase();
+
+  return (
+    normalized.includes("function_invocation_failed") ||
+    normalized.includes("internal") ||
+    normalized.includes("server error") ||
+    normalized.includes("unavailable") ||
+    normalized.includes("bom1::")
+  );
 };
 
 const systemPrompt = `
@@ -181,26 +198,39 @@ Generation rules:
     let response: Awaited<ReturnType<GoogleGenAI["models"]["generateContent"]>> | null = null;
     let lastError: unknown = null;
 
-    for (let attempt = 0; attempt < availableProviders; attempt += 1) {
-      const provider = getProviderSelection(body);
-      if (!provider) break;
+    // Try the chosen model first, then fall back to cheaper models if Gemini returns a transient internal error.
+    const primaryProvider = getProviderSelection(body);
+    const modelChain = primaryProvider ? getModelFallbackChain(primaryProvider.model) : ["gemini-2.5-flash"];
 
-      try {
-        const ai = new GoogleGenAI({ apiKey: provider.key });
-        response = await ai.models.generateContent({
-          model: provider.model,
-          contents: prompt,
-          config: { responseMimeType: "application/json" },
-        });
-        console.info(`[AI Router] focus=${focus} model=${provider.model} pool=${provider.poolName}`);
-        break;
-      } catch (error) {
-        lastError = error;
+    for (const model of modelChain) {
+      for (let attempt = 0; attempt < availableProviders; attempt += 1) {
+        const provider = getProviderSelection(body, { modelOverride: model as any, poolSuffix: `m${model}` });
+        if (!provider) break;
 
-        if (!isRateLimitError(error) || attempt === availableProviders - 1) {
-          throw error;
+        try {
+          const ai = new GoogleGenAI({ apiKey: provider.key });
+          response = await ai.models.generateContent({
+            model: provider.model,
+            contents: prompt,
+            config: { responseMimeType: "application/json" },
+          });
+          console.info(`[AI Router] focus=${focus} model=${provider.model} pool=${provider.poolName}`);
+          break;
+        } catch (error) {
+          lastError = error;
+
+          const shouldRetry = isRateLimitError(error) || isTransientProviderError(error);
+          if (!shouldRetry || attempt === availableProviders - 1) {
+            // If not transient, fail fast. If transient, we'll fall back to the next model in the chain.
+            if (!isTransientProviderError(error)) {
+              throw error;
+            }
+            break;
+          }
         }
       }
+
+      if (response) break;
     }
 
     if (!response) {

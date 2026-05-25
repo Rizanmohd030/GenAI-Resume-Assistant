@@ -156,12 +156,23 @@ export const chooseModelForRequest = (request: GenerateRequest): RouteDecision =
   };
 };
 
-export const getProviderSelection = (request: GenerateRequest): ProviderSelection | null => {
-  const route = chooseModelForRequest(request);
+export const getProviderSelection = (
+  request: GenerateRequest,
+  options?: { modelOverride?: SupportedGeminiModel; poolSuffix?: string }
+): ProviderSelection | null => {
+  const route = options?.modelOverride
+    ? {
+        model: options.modelOverride,
+        poolName: options.modelOverride,
+        reason: "Fallback model override.",
+      }
+    : chooseModelForRequest(request);
+
   const modelKeys = modelSpecificKeys(route.model);
   const fallbackKeys = genericGeminiKeys();
   const selectedKeys = modelKeys.length > 0 ? modelKeys : fallbackKeys;
-  const poolName = modelKeys.length > 0 ? route.poolName : `${route.poolName}:shared`;
+  const basePoolName = modelKeys.length > 0 ? route.poolName : `${route.poolName}:shared`;
+  const poolName = options?.poolSuffix ? `${basePoolName}:${options.poolSuffix}` : basePoolName;
   const key = nextKeyFromPool(poolName, selectedKeys);
 
   if (!key) {
@@ -179,4 +190,10 @@ export const getAvailableProviderCount = (request: GenerateRequest) => {
   const route = chooseModelForRequest(request);
   const modelKeys = modelSpecificKeys(route.model);
   return (modelKeys.length > 0 ? modelKeys : genericGeminiKeys()).length;
+};
+
+export const getModelFallbackChain = (model: SupportedGeminiModel): SupportedGeminiModel[] => {
+  if (model === "gemini-2.5-pro") return ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"];
+  if (model === "gemini-2.5-flash") return ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+  return ["gemini-2.5-flash-lite"];
 };

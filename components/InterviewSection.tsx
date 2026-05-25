@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import CopyButton from './CopyButton';
-import type { DifficultyLevel, InterviewSectionData } from '../types';
+import type { InterviewSectionData } from '../types';
 
 interface InterviewSectionProps {
   data: InterviewSectionData;
@@ -8,19 +8,12 @@ interface InterviewSectionProps {
   isGeneratingMore: boolean;
 }
 
-const filters: Array<DifficultyLevel | 'All'> = ['All', 'Easy', 'Medium', 'Hard'];
-
 const InterviewSection: React.FC<InterviewSectionProps> = ({ data, onGenerateMore, isGeneratingMore }) => {
-  const [activeDifficulty, setActiveDifficulty] = useState<DifficultyLevel | 'All'>('All');
   const [questionIndex, setQuestionIndex] = useState(0);
 
-  const filteredQuestions = useMemo(() => {
-    return activeDifficulty === 'All'
-      ? data.questions
-      : data.questions.filter((question) => question.difficulty === activeDifficulty);
-  }, [activeDifficulty, data.questions]);
+  const questions = useMemo(() => data.questions, [data.questions]);
 
-  const mockQuestion = filteredQuestions[questionIndex] || filteredQuestions[0];
+  const mockQuestion = questions[questionIndex] || questions[0];
 
   return (
     <section
@@ -37,19 +30,6 @@ const InterviewSection: React.FC<InterviewSectionProps> = ({ data, onGenerateMor
           </p>
         </div>
         <div className="flex flex-wrap gap-2 sm:gap-3">
-          {filters.map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setActiveDifficulty(filter)}
-              className={`min-h-[2.75rem] rounded-full px-3 py-2 text-sm transition sm:px-4 ${
-                activeDifficulty === filter
-                  ? 'bg-[#243b5a] text-[#f8f5ee] shadow-[0_8px_24px_rgba(36,59,90,0.14)]'
-                  : 'border border-[rgba(96,90,81,0.12)] bg-[rgba(252,248,242,0.78)] text-[#5c584f] hover:bg-[rgba(247,242,235,0.96)]'
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
           <button
             onClick={onGenerateMore}
             disabled={isGeneratingMore}
@@ -62,7 +42,7 @@ const InterviewSection: React.FC<InterviewSectionProps> = ({ data, onGenerateMor
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="space-y-4">
-          {filteredQuestions.map((question) => {
+          {questions.map((question) => {
             return (
               <article
                 key={question.id}
@@ -101,7 +81,7 @@ const InterviewSection: React.FC<InterviewSectionProps> = ({ data, onGenerateMor
                 <h3 className="mt-2 text-lg text-white sm:text-xl">Question and answer, side by side</h3>
               </div>
               <span className="w-fit rounded-full bg-[rgba(255,250,244,0.92)] px-4 py-2 text-sm font-medium text-[#243b5a]">
-                {filteredQuestions.length} ready
+                {questions.length} ready
               </span>
             </div>
 
@@ -116,7 +96,7 @@ const InterviewSection: React.FC<InterviewSectionProps> = ({ data, onGenerateMor
               </p>
               <div className="mt-5 flex gap-3">
                 <button
-                  onClick={() => setQuestionIndex((current) => (current + 1) % Math.max(filteredQuestions.length, 1))}
+                  onClick={() => setQuestionIndex((current) => (current + 1) % Math.max(questions.length, 1))}
                   className="rounded-full border border-white/10 bg-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-white"
                 >
                   Next Question
