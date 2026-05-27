@@ -1,7 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import type { DifficultyLevel, DsaTopic, GenerateRequest, QuestionCategory } from "../types";
-import { getAvailableProviderCount, getModelFallbackChain, getProviderSelection } from "./aiRouter";
 
 const allowedDifficulties: DifficultyLevel[] = ["Easy", "Medium", "Hard"];
 const allowedCategories: QuestionCategory[] = ["HR", "Technical", "Behavioral", "Role-Specific"];
@@ -154,7 +152,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Dynamically import the Google GenAI client to ensure any import-time
+    // errors (missing native bindings, incompatible runtime, etc.) are
+    // caught and turned into a JSON error response instead of crashing the
+    // serverless function with a non-JSON HTML/text error page.
+    const { GoogleGenAI } = await import("@google/genai");
+
     const body = req.body as GenerateRequest;
+
+    // Dynamically import aiRouter helpers to avoid ESM resolution issues
+    // in serverless runtime (Vercel). Import the compiled .js module path
+    // to match Node ESM resolution in production.
+    const aiRouter = await import('./aiRouter.js').catch(async (e) => {
+      // Try without .js as a fallback
+      return import('./aiRouter');
+    });
+
+    const { getAvailableProviderCount, getModelFallbackChain, getProviderSelection } = aiRouter as any;
     const { jobDescription, role, companyContext, experienceLevel, focus = "full" } = body;
 
     if (!jobDescription || !role || !experienceLevel) {
@@ -209,7 +223,7 @@ Generation rules:
 - Use practical, production-ready language.
 `;
 
-    let response: Awaited<ReturnType<GoogleGenAI["models"]["generateContent"]>> | null = null;
+    let response: Awaited<ReturnType<any["models"]["generateContent"]>> | null = null;
     let lastError: unknown = null;
 
     // Try the chosen model first, then fall back to cheaper models if Gemini returns a transient internal error or rate limit.
