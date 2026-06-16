@@ -189,7 +189,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, onUpdate }) => {
       `}</style>
 
       {/* Full A4 page preview */}
-      <div className="overflow-hidden rounded-2xl border border-[rgba(96,90,81,0.12)] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+      <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-[rgba(96,90,81,0.12)] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
         <div
           className="resume-page mx-auto px-12 py-10 sm:px-14 sm:py-12"
           style={{
