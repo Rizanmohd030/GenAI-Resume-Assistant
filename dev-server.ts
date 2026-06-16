@@ -37,6 +37,20 @@ app.post('/api/generate', async (req, res) => {
   }
 });
 
+import generateResumeHandler from './api/generateResume.js';
+app.post('/api/generate-resume', async (req, res) => {
+  const vercelReq = { method: req.method, body: req.body, headers: req.headers };
+  const vercelRes = {
+    status: (statusCode: number) => { res.status(statusCode); return vercelRes; },
+    json: (data: unknown) => { res.json(data); }
+  };
+  try {
+    await generateResumeHandler(vercelReq as any, vercelRes as any);
+  } catch (error: unknown) {
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
 const PORT = 3001;
 const HOST = '0.0.0.0';
 const server = app.listen(PORT, HOST, () => {

@@ -64,7 +64,7 @@ export interface GeneratedContent {
   careerPrep: CareerPrepSectionData;
 }
 
-export type GenerationFocus = 'full' | 'interview' | 'dsa' | 'career';
+export type GenerationFocus = 'full' | 'interview' | 'dsa' | 'career' | 'resume';
 
 export interface GenerateRequest extends CareerInput {
   focus?: GenerationFocus;

@@ -4,6 +4,7 @@ import Loader from './components/Loader';
 import InterviewSection from './components/InterviewSection';
 import DsaSection from './components/DsaSection';
 import CareerPrepSection from './components/CareerPrepSection';
+import ResumeBuilder from './components/ResumeBuilder';
 import Toast from './components/Toast';
 import { generateCareerContent } from './services/geminiService';
 import type {
@@ -26,7 +27,7 @@ const App: React.FC = () => {
   const [loadingFocus, setLoadingFocus] = useState<GenerationFocus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState('');
-  const [selectedAction, setSelectedAction] = useState<'interview' | 'dsa' | 'career'>('interview');
+  const [selectedAction, setSelectedAction] = useState<'interview' | 'dsa' | 'career' | 'resume'>('interview');
   const [solvedProblemIds, setSolvedProblemIds] = useState<string[]>([]);
   const [bookmarkedProblemIds, setBookmarkedProblemIds] = useState<string[]>([]);
   const [shouldRevealResults, setShouldRevealResults] = useState(false);
@@ -194,6 +195,7 @@ const App: React.FC = () => {
     { id: 'interview', label: 'Interview Q&A' },
     { id: 'dsa', label: 'DSA Preparation' },
     { id: 'career', label: 'Career Prep' },
+    { id: 'resume', label: '✦ Resume Builder' },
   ];
 
   const handlePrimarySubmit = () => {
@@ -205,10 +207,14 @@ const App: React.FC = () => {
   const visibleInterview = Boolean(generatedContent && selectedAction === 'interview');
   const visibleDsa = Boolean(generatedContent && selectedAction === 'dsa');
   const visibleCareer = Boolean(generatedContent && selectedAction === 'career');
+  const visibleResume = selectedAction === 'resume';
 
-  const handleSelectAction = (id: 'interview' | 'dsa' | 'career') => {
+  const handleSelectAction = (id: 'interview' | 'dsa' | 'career' | 'resume') => {
     setSelectedAction(id);
     setActiveSection(id);
+
+    // Resume builder doesn't need API generation
+    if (id === 'resume') return;
 
     if (!jobDescription || !role || isBusy) return;
 
@@ -244,46 +250,52 @@ const App: React.FC = () => {
               isLoading={isBusy}
               quickActions={quickActions}
               activeAction={selectedAction}
-              onSelectAction={(id) => handleSelectAction(id as 'interview' | 'dsa' | 'career')}
+              onSelectAction={(id) => handleSelectAction(id as 'interview' | 'dsa' | 'career' | 'resume')}
             />
 
             <div id="results-anchor" className="relative z-10 -mt-1 w-full min-h-[16rem] pb-6 sm:-mt-2 sm:pb-8 md:-mt-4">
-              {error && (
-                <div className="rounded-[1.25rem] border border-rose-200/70 bg-[rgba(255,245,244,0.9)] p-4 text-sm leading-6 text-rose-700 shadow-[0_10px_40px_rgba(190,24,93,0.06)] md:rounded-[1.6rem]">
-                  {error}
-                </div>
-              )}
-
-              {isInitialLoading && <Loader />}
-
-              {generatedContent && (
+              {visibleResume ? (
+                <ResumeBuilder />
+              ) : (
                 <>
-                  {visibleInterview && (
-                    <InterviewSection
-                      data={generatedContent.interview as InterviewSectionData}
-                      onGenerateMore={() => runGeneration('interview')}
-                      isGeneratingMore={loadingFocus === 'interview'}
-                    />
+                  {error && (
+                    <div className="rounded-[1.25rem] border border-rose-200/70 bg-[rgba(255,245,244,0.9)] p-4 text-sm leading-6 text-rose-700 shadow-[0_10px_40px_rgba(190,24,93,0.06)] md:rounded-[1.6rem]">
+                      {error}
+                    </div>
                   )}
 
-                  {visibleDsa && (
-                   <DsaSection
-            data={generatedContent.dsa as DsaSectionData}
-            onToggleSolved={handleToggleSolved}
-            onToggleBookmark={handleToggleBookmark}
-            onGenerateMore={() => runGeneration('dsa')}
-            isGeneratingMore={loadingFocus === 'dsa'}
-          />  
-                  )}
+                  {isInitialLoading && <Loader />}
 
-                  {visibleCareer && (
-                    <CareerPrepSection
-                      data={generatedContent.careerPrep as CareerPrepSectionData}
-                      onFieldChange={handleCareerFieldChange}
-                      onRegenerate={() => runGeneration('career')}
-                      isRegenerating={loadingFocus === 'career'}
-                      onDownloadPdf={handleDownloadPdf}
-                    />
+                  {generatedContent && (
+                    <>
+                      {visibleInterview && (
+                        <InterviewSection
+                          data={generatedContent.interview as InterviewSectionData}
+                          onGenerateMore={() => runGeneration('interview')}
+                          isGeneratingMore={loadingFocus === 'interview'}
+                        />
+                      )}
+
+                      {visibleDsa && (
+                        <DsaSection
+                          data={generatedContent.dsa as DsaSectionData}
+                          onToggleSolved={handleToggleSolved}
+                          onToggleBookmark={handleToggleBookmark}
+                          onGenerateMore={() => runGeneration('dsa')}
+                          isGeneratingMore={loadingFocus === 'dsa'}
+                        />
+                      )}
+
+                      {visibleCareer && (
+                        <CareerPrepSection
+                          data={generatedContent.careerPrep as CareerPrepSectionData}
+                          onFieldChange={handleCareerFieldChange}
+                          onRegenerate={() => runGeneration('career')}
+                          isRegenerating={loadingFocus === 'career'}
+                          onDownloadPdf={handleDownloadPdf}
+                        />
+                      )}
+                    </>
                   )}
                 </>
               )}
